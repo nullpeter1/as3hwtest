@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tech Stack Smoke Test</title>
+	<style>
+		:root {
+			color-scheme: dark;
+			--bg: #101417;
+			--panel: #182126;
+			--panel-2: #202c32;
+			--text: #edf4f2;
+			--muted: #9fb1ad;
+			--accent: #64d8a4;
+			--accent-2: #f6c85f;
+			--danger: #ff7d7d;
+			--border: #304047;
+		}
+
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			min-height: 100vh;
+			background: radial-gradient(circle at top right, #21453f 0, transparent 38%), var(--bg);
+			color: var(--text);
+			font: 16px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		}
+		main { width: min(1100px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0; }
+		header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 32px; }
+		h1, h2, p { margin-top: 0; }
+		h1 { max-width: 650px; margin-bottom: 10px; font-size: clamp(2rem, 6vw, 4.5rem); line-height: .98; letter-spacing: -0.08em; }
+		h2 { font-size: 1.05rem; color: var(--accent); }
+		.lede, .muted { color: var(--muted); }
+		.lede { max-width: 680px; }
+		.status { display: flex; align-items: center; gap: 9px; white-space: nowrap; color: var(--accent); }
+		.pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 6px #64d8a420; }
+		.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+		section { grid-column: span 6; padding: 22px; border: 1px solid var(--border); border-radius: 10px; background: #182126dd; box-shadow: 0 12px 36px #00000024; }
+		section.wide { grid-column: span 12; }
+		label { display: block; margin-bottom: 7px; color: var(--muted); font-size: .8rem; }
+		input, select, button { border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; color: var(--text); background: var(--panel-2); font: inherit; }
+		input, select { width: 100%; }
+		button { cursor: pointer; transition: transform .15s, border-color .15s, background .15s; }
+		button:hover { transform: translateY(-1px); border-color: var(--accent); }
+		button.primary { color: #10251d; border-color: var(--accent); background: var(--accent); font-weight: 700; }
+		.row { display: flex; gap: 10px; align-items: end; }
+		.row > * { flex: 1; }
+		.counter { display: flex; align-items: center; gap: 14px; margin: 18px 0; }
+		.counter strong { min-width: 58px; text-align: center; font-size: 2rem; color: var(--accent-2); }
+		.result { min-height: 28px; color: var(--accent-2); }
+		.error { color: var(--danger); min-height: 24px; }
+		ul { display: grid; gap: 8px; padding: 0; margin: 16px 0 0; list-style: none; }
+		li { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--panel-2); }
+		.tag { color: var(--accent-2); font-size: .78rem; }
+		pre { overflow: auto; padding: 16px; margin: 0; border-radius: 6px; background: #0b0e10; color: #c9f7df; }
+		footer { padding-top: 26px; color: var(--muted); font-size: .8rem; }
+		@media (max-width: 700px) { main { padding: 28px 0; } header { display: block; } .status { margin-top: 22px; } section, section.wide { grid-column: span 12; } .row { display: grid; } }
+	</style>
+</head>
+<body>
+	<main>
+		<header>
+			<div>
+				<p class="tag">/ smoke-test / v1.0</p>
+				<h1>Is the tech stack alive?</h1>
+				<p class="lede">A small, dependency-free playground proving that the browser can render UI, respond to events, validate input, filter data, and handle asynchronous work.</p>
+			</div>
+			<div class="status"><span class="pulse"></span><span id="statusText">All systems ready</span></div>
+		</header>
+
+		<div class="grid">
+			<section>
+				<h2>01 / State and events</h2>
+				<p class="muted">A tiny counter confirms JavaScript is loaded and buttons are wired.</p>
+				<div class="counter"><button id="decrement" aria-label="Decrease count">-</button><strong id="count">0</strong><button id="increment" aria-label="Increase count">+</button></div>
+				<button id="reset">Reset state</button>
+			</section>
+
+			<section>
+				<h2>02 / Form validation</h2>
+				<form id="demoForm">
+					<label for="email">Test email</label>
+					<div class="row"><input id="email" name="email" type="email" placeholder="you@example.com" required><button class="primary" type="submit">Validate</button></div>
+					<p class="error" id="formMessage" role="status"></p>
+				</form>
+			</section>
+
+			<section>
+				<h2>03 / Filterable data</h2>
+				<label for="filter">Search sample records</label>
+				<input id="filter" type="search" placeholder="Try: api, CSS, test...">
+				<ul id="recordList"></ul>
+			</section>
+
+			<section>
+				<h2>04 / Async workflow</h2>
+				<p class="muted">Simulates a network request without needing a backend.</p>
+				<button class="primary" id="loadButton">Run async check</button>
+				<p class="result" id="asyncResult" role="status">Waiting for a request.</p>
+			</section>
+
+			<section class="wide">
+				<h2>05 / Runtime output</h2>
+				<pre id="output">Booting smoke test...</pre>
+			</section>
+		</div>
+		<footer>Open this file in a browser. No package install or build step is required.</footer>
+	</main>
+
+	<script>
+		const records = [
+			{ name: 'HTML structure', type: 'markup' },
+			{ name: 'CSS responsive layout', type: 'styles' },
+			{ name: 'JavaScript event handlers', type: 'runtime' },
+			{ name: 'Form validation', type: 'browser API' },
+			{ name: 'Async request simulation', type: 'promise' }
+		];
+		let count = 0;
+		const $ = (selector) => document.querySelector(selector);
+
+		function writeOutput(message) {
+			$('#output').textContent = JSON.stringify({ timestamp: new Date().toISOString(), message }, null, 2);
+		}
+
+		function renderRecords() {
+			const query = $('#filter').value.toLowerCase();
+			const visible = records.filter((record) => `${record.name} ${record.type}`.toLowerCase().includes(query));
+			$('#recordList').innerHTML = visible.length
+				? visible.map((record) => `<li><span>${record.name}</span><span class="tag">${record.type}</span></li>`).join('')
+				: '<li class="muted">No matching records.</li>';
+		}
+
+		function updateCount() {
+			$('#count').textContent = count;
+			writeOutput(`Counter changed to ${count}`);
+		}
+
+		$('#increment').addEventListener('click', () => { count += 1; updateCount(); });
+		$('#decrement').addEventListener('click', () => { count -= 1; updateCount(); });
+		$('#reset').addEventListener('click', () => { count = 0; updateCount(); });
+		$('#filter').addEventListener('input', renderRecords);
+		$('#demoForm').addEventListener('submit', (event) => {
+			event.preventDefault();
+			const email = $('#email').value;
+			$('#formMessage').textContent = email.includes('@') ? `Valid input: ${email}` : 'Please enter a valid email address.';
+			writeOutput('Form validation completed');
+		});
+		$('#loadButton').addEventListener('click', async () => {
+			const button = $('#loadButton');
+			button.disabled = true;
+			$('#asyncResult').textContent = 'Checking...';
+			await new Promise((resolve) => setTimeout(resolve, 700));
+			$('#asyncResult').textContent = 'Async check complete: promise resolved.';
+			$('#statusText').textContent = 'All checks passing';
+			button.disabled = false;
+			writeOutput('Async workflow completed');
+		});
+
+		renderRecords();
+		writeOutput('HTML, CSS, and JavaScript loaded successfully');
+	</script>
+</body>
+</html>
